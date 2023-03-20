@@ -152,11 +152,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e401e130735694a6495e731d79b0fbe8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxItterations: 10
+  MaxItterations: 200
   AllTiles:
   - {fileID: 2658247973454726891, guid: 51c0c77e195d245168c554a05d020f96, type: 3}
   - {fileID: 7822206470571555839, guid: d682f4aa4f42e47388b0bece6958dfcd, type: 3}
   - {fileID: 8539138014739017319, guid: f159b8c5fcea84df587a6b1bac5588c1, type: 3}
+  - {fileID: 5306556762246476560, guid: 5cabf7b1203b642e284976f264e06874, type: 3}
+  - {fileID: 989687655060793722, guid: f156c5af7a3c74582a2c08c1bf3f0b92, type: 3}
+  - {fileID: 207672191652864360, guid: 1a257a4bdfea344a69ce4a31f0abca79, type: 3}
+  - {fileID: 6795888025995910846, guid: bdce58f0281e344bcb737c14d4a38568, type: 3}
+  - {fileID: 8238880298189114819, guid: 49711a2279ace46dc87b0db081be72b5, type: 3}
+  - {fileID: 2922689789586784039, guid: dee60984423df474cabee81f99838957, type: 3}
+  - {fileID: 2955609509694392896, guid: 3c156b931bfdd426a84730dde8d71752, type: 3}
+  - {fileID: 4857211628107299659, guid: b9dec62c69f11433591993c22943465d, type: 3}
   Seed: 0
 --- !u!4 &467110326
 Transform:
