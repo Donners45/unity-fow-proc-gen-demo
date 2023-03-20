@@ -19,8 +19,8 @@ public class DungeonManager : MonoBehaviour
     {
         SeedDungeon();
 
-        //StartCoroutine(HandleCreateLoop());
-        HandleCreateLoop();
+        StartCoroutine(HandleCreateLoop());
+        //HandleCreateLoop();
         //Debug.Log($"Created dungeon of {_dungeon.Count} tiles");
     }
 
@@ -57,7 +57,7 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
-    void HandleCreateLoop()
+    IEnumerator HandleCreateLoop()
     {
         for (var i = 0; i < MaxItterations; i++)
         {
@@ -71,20 +71,17 @@ public class DungeonManager : MonoBehaviour
             {
                 if (tile.Edges[e] == 1)
                 {
-                    var orientation = DungeonTile.GetOrientationFromEdge(e);
+                   // var orientation = DungeonTile.GetOrientationFromEdge(e);
                     var offset = DungeonTile.GetOffsetFromEdge(e);
                     var targetLocation = offset + _currentTile;
 
-                    Debug.Log($"Looking for space {orientation}");
-
                     if (!_dungeon.Contains(targetLocation))
                     {
-                        Debug.Log($"Found space {orientation}");
-                        //yield return new WaitForSeconds(0.1f);
-
                         var tileToCreate = GetTile(e);
                         if (tileToCreate != null)
                         {
+                            yield return new WaitForSeconds(0.05f);
+
                             var go = Instantiate(tileToCreate, targetLocation * 30, Quaternion.Euler(0, 0, 0));
                             go
                                 .GetComponent<DungeonTile>()
