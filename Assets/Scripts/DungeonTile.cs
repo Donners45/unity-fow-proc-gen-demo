@@ -9,7 +9,7 @@ public class DungeonTile : MonoBehaviour
     public string[] Tags;
     public Vector2 Location;
 
-    static Orientation GetOrientationFromEdge(int edgeIndex)
+    public static Orientation GetOrientationFromEdge(int edgeIndex)
     {
         return edgeIndex switch
         {
@@ -25,8 +25,8 @@ public class DungeonTile : MonoBehaviour
     {
         return GetOrientationFromEdge(edgeIndex) switch
         {
-            var i when i == Orientation.Up => new Vector2(0, -1),
-            var i when i == Orientation.Down => new Vector2(0, 1),
+            var i when i == Orientation.Up => new Vector2(0, 1),
+            var i when i == Orientation.Down => new Vector2(0, -1),
 
             var i when i == Orientation.Right => new Vector2(1, 0),
             var i when i == Orientation.Left => new Vector2(-1, 0),
@@ -34,8 +34,24 @@ public class DungeonTile : MonoBehaviour
             _ => Vector2.zero,
         };
     }
+
+    public static int GetMatchingEdgeIndex(int edgeIndex)
+    {
+        var matchingEdgeIndex = (edgeIndex % 3) switch
+        {
+            0 => 8 + edgeIndex,
+            1 => 6 + edgeIndex,
+            2 => 4 + edgeIndex,
+            //Noop
+            _ => 0,
+        };
+        if (matchingEdgeIndex > 11)
+            matchingEdgeIndex -= 12;
+        return matchingEdgeIndex;
+    }
 }
 
+// 0 0 0 0 0 0 0 0 0 0 0 0 
 
 public enum Orientation
 {

@@ -19,7 +19,9 @@ public class DungeonManager : MonoBehaviour
     {
         SeedDungeon();
 
-        StartCoroutine(HandleCreateLoop());
+        //StartCoroutine(HandleCreateLoop());
+        HandleCreateLoop();
+        //Debug.Log($"Created dungeon of {_dungeon.Count} tiles");
     }
 
     void SeedDungeon()
@@ -55,7 +57,7 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
-    IEnumerator HandleCreateLoop()
+    void HandleCreateLoop()
     {
         for (var i = 0; i < MaxItterations; i++)
         {
@@ -69,27 +71,56 @@ public class DungeonManager : MonoBehaviour
             {
                 if (tile.Edges[e] == 1)
                 {
+                    var orientation = DungeonTile.GetOrientationFromEdge(e);
                     var offset = DungeonTile.GetOffsetFromEdge(e);
                     var targetLocation = offset + _currentTile;
 
+                    Debug.Log($"Looking for space {orientation}");
+
                     if (!_dungeon.Contains(targetLocation))
                     {
+                        Debug.Log($"Found space {orientation}");
+                        //yield return new WaitForSeconds(0.1f);
 
-                        yield return new WaitForSeconds(1);
-
-                        var go = Instantiate(AllTiles[2], targetLocation * 30, Quaternion.Euler(0, 0, 0));
-                        go
-                            .GetComponent<DungeonTile>()
-                            .Location = targetLocation;
-                        _tiles.Add(go);
-                        _dungeon.Add(targetLocation);
-                        
+                        var tileToCreate = GetTile(e);
+                        if (tileToCreate != null)
+                        {
+                            var go = Instantiate(tileToCreate, targetLocation * 30, Quaternion.Euler(0, 0, 0));
+                            go
+                                .GetComponent<DungeonTile>()
+                                .Location = targetLocation;
+                            _tiles.Add(go);
+                            _dungeon.Add(targetLocation);
+                        }
                     }
                 }
             }
 
         }
 
+        GameObject GetTile(int edgeIndex)
+        {
+
+            var matchingIndex = DungeonTile.GetMatchingEdgeIndex(edgeIndex);
+            var candidates = new List<GameObject>();
+
+            foreach (var go in AllTiles)
+            {
+                var tile = go.GetComponent<DungeonTile>();
+
+                if (tile.Edges[matchingIndex] == 1)
+                {
+                    candidates.Add(go);
+                }
+            }
+
+            if (candidates.Count > 0)
+            {
+                return candidates[_random.Next(candidates.Count)];
+            }
+
+            return null;
+        }
         
         
     }
