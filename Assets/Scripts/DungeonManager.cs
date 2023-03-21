@@ -104,7 +104,6 @@ public class DungeonManager : MonoBehaviour
             {
                 if (tile.Edges[e] == 1)
                 {
-                   // var orientation = DungeonTile.GetOrientationFromEdge(e);
                     var offset = DungeonTile.GetOffsetFromEdge(e);
                     var targetLocation = offset + _currentTile;
 
@@ -174,6 +173,13 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Buggy seeds
+    /// 39921746 - fixed
+    /// 
+    /// </summary>
+    /// <param name="tile"></param>
+    /// <param name="visted"></param>
     void RecurseTile(DungeonTile tile, HashSet<Vector2> visted)
     {
         visted.Add(tile.Location);
@@ -186,7 +192,7 @@ public class DungeonManager : MonoBehaviour
                 var neighborLocation = DungeonTile.GetOffsetFromEdge(i) + tile.Location;
                 var neighborExists = _dungeon.Contains(neighborLocation);
 
-                if (neighborExists && !visted.Contains(neighborLocation))//
+                if (neighborExists)//
                 {
                     var matchingIndex = DungeonTile.GetMatchingEdgeIndex(i);
                     var neighbor = _tiles
@@ -196,13 +202,31 @@ public class DungeonManager : MonoBehaviour
 
                     if (neighbor.Edges[matchingIndex] == 1)
                     {
-                        if (neighbor.DijkstraIndex == 0 || tile.DijkstraIndex < neighbor.DijkstraIndex + 1) //tile.DijkstraIndex < neighbor.DijkstraIndex + 1
+
+                        // always update if current route is more efficent
+                        // or neighbor hasn't been set
+                        if (neighbor.DijkstraIndex > tile.DijkstraIndex + 1 ||
+                            (neighbor.DijkstraIndex == 0 && !visted.Contains(neighbor.Location)))
                         {
                             neighbor.DijkstraIndex = tile.DijkstraIndex + 1;
+                            neighbor.DebugText = $"{neighbor.DijkstraIndex}";
                         }
 
-                        neighbor.DebugText = $"{neighbor.DijkstraIndex}";
-                        neighbors.Add(neighbor);
+                        //if (neighbor.DijkstraIndex == 0 || tile.DijkstraIndex < neighbor.DijkstraIndex + 1) //tile.DijkstraIndex < neighbor.DijkstraIndex + 1
+                        //{
+                        //    neighbor.DijkstraIndex = tile.DijkstraIndex + 1;
+                        //}
+
+                        // only add neighbor to list if it's not been visted
+                        // this prevents stack over flows
+                        if (!visted.Contains(neighbor.Location))
+                        {
+                            //neighbor.DebugText = $"{neighbor.DijkstraIndex}";
+                            neighbors.Add(neighbor);
+                        }
+
+                        //neighbor.DebugText = $"{neighbor.DijkstraIndex}";
+                        //neighbors.Add(neighbor);
                     }
                 }
                 else
@@ -222,11 +246,11 @@ public class DungeonManager : MonoBehaviour
         var root = _tiles[_random.Next(_tiles.Count)].GetComponent<DungeonTile>();
 
         root.DebugText = "R";
-
+        
         var visted = new HashSet<Vector2>();
-
+        Debug.Log("Starting recurse");
         RecurseTiles(new List<DungeonTile>() { root }, visted);
-
+        Debug.Log("Finished recurse");
     }
 
 }
