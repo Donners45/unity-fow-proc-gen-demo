@@ -167,20 +167,40 @@ public class DungeonManager : MonoBehaviour
 
     void RecurseTiles(List<DungeonTile> tiles, HashSet<Vector2> visted)
     {
+        List<DungeonTile> children = new List<DungeonTile>();
         foreach(var tile in tiles)
         {
-            RecurseTile(tile, visted);
+            children.AddRange(RecurseTile(tile, visted));
         }
+        if (children.Any())
+        {
+            RecurseTiles(children, visted);
+        }
+        
     }
 
     /// <summary>
     /// Buggy seeds
-    /// 39921746 - fixed
-    /// 
+    /// 39921746 | 30 - fixed
+    /// 923075182 | 100 - short path
+    ///
+    ///
+    /// Potential issue - this is navigating a childs children before siblings.
+    /// I need to map all siblings before children.
+    ///
+    /// Current
+    ///     (0) - (0)
+    /// 0 < 
+    ///      0  -  0
+    ///
+    /// Ideal
+    ///     (0) -  0
+    /// 0 < 
+    ///     (0) -  0
     /// </summary>
     /// <param name="tile"></param>
     /// <param name="visted"></param>
-    void RecurseTile(DungeonTile tile, HashSet<Vector2> visted)
+    List<DungeonTile> RecurseTile(DungeonTile tile, HashSet<Vector2> visted)
     {
         visted.Add(tile.Location);
 
@@ -235,10 +255,11 @@ public class DungeonManager : MonoBehaviour
                 }
             }
         }
-        foreach(var neighbor in neighbors)
-        {
-            RecurseTile(neighbor, visted);
-        }
+        //foreach (var neighbor in neighbors)
+        //{
+        //    RecurseTile(neighbor, visted);
+        //}
+        return neighbors;
     }
 
     void TraverseDungeon()
