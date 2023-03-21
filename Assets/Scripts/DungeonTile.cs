@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class DungeonTile : MonoBehaviour
@@ -8,6 +9,18 @@ public class DungeonTile : MonoBehaviour
     public int[] Edges;
     public string[] Tags;
     public Vector2 Location;
+
+    public int DijkstraIndex;
+
+
+    /// <summary>
+    /// Only used for debugging purposes
+    /// </summary>
+    public string DebugText;
+    void OnDrawGizmos()
+    {
+        Handles.Label(transform.position, DebugText);
+    }
 
     public static Orientation GetOrientationFromEdge(int edgeIndex)
     {

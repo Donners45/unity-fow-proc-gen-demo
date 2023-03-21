@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e401e130735694a6495e731d79b0fbe8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxItterations: 200
+  MaxItterations: 30
   AllTiles:
   - {fileID: 2658247973454726891, guid: 51c0c77e195d245168c554a05d020f96, type: 3}
   - {fileID: 7822206470571555839, guid: d682f4aa4f42e47388b0bece6958dfcd, type: 3}
@@ -169,7 +169,7 @@ MonoBehaviour:
   - {fileID: 3307984795230208821, guid: 9a38b15030d044be8a7c98babe69d6de, type: 3}
   - {fileID: 433395752808827091, guid: 5187c40d655714d2da722e8065c976cb, type: 3}
   - {fileID: 171407009420410359, guid: ea1fc4e28ae9c40bd8066fb4b01466ce, type: 3}
-  Seed: 0
+  Seed: 39921746
 --- !u!4 &467110326
 Transform:
   m_ObjectHideFlags: 0

@@ -89,7 +89,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Edges: 000000000100000000000000000000000100000000000000000000000000000000000000000000000000000000000000
-  Tags: []
+  Tags:
+  - Corridoor
   Location: {x: 0, y: 0}
 --- !u!1 &7033139765491672785
 GameObject:
