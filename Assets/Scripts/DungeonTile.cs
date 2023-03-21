@@ -9,12 +9,11 @@ public class DungeonTile : MonoBehaviour
     public int[] Edges;
     public string[] Tags;
     public Vector2 Location;
-
     public int DijkstraIndex;
-
 
     /// <summary>
     /// Only used for debugging purposes
+    /// Updates Gizmo in real time
     /// </summary>
     public string DebugText;
     void OnDrawGizmos()
@@ -63,8 +62,6 @@ public class DungeonTile : MonoBehaviour
         return matchingEdgeIndex;
     }
 }
-
-// 0 0 0 0 0 0 0 0 0 0 0 0 
 
 public enum Orientation
 {

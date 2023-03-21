@@ -9,7 +9,7 @@ using static UnityEditor.FilePathAttribute;
 /// <summary>
 /// todo
 /// 
-///  - Djikastra mapping
+///  - Djikastra mapping (DONE BUT NOT STABLE)
 ///     - Pick an arbitary starting point
 ///     - Traverse every tile associating a value with distance from start
 ///     - High number indicates difficulty?
@@ -17,6 +17,7 @@ using static UnityEditor.FilePathAttribute;
 ///  - Tidy up seed
 ///     - If a seed exahausts {MaxItterations} there will be empty walls
 ///     - Fill with a terminator or create a room until terminated
+///     - Can do this as part of Dijkstra mapping, I'm already traversing every tile.
 ///
 ///  - Room parsing
 ///     - Distinguish tiles that create a room
@@ -144,7 +145,8 @@ public class DungeonManager : MonoBehaviour
                 {
                     if (tile.Tags.Where(f => tileAttributes.Contains(f)).Any())
                     {
-                        // similar tags so boost
+                        // todo make boost logic a bit more rigid.
+                        // this is doesn't seem efficient.
                         candidates.Add(go);
                         candidates.Add(go);
                         candidates.Add(go);
@@ -156,12 +158,27 @@ public class DungeonManager : MonoBehaviour
 
             if (candidates.Count > 0)
             {
-                //RNG load
                 return candidates[_random.Next(candidates.Count)];
             }
 
             return null;
         }     
+    }
+
+    /// <summary>
+    /// From a random point
+    /// walk every path in the dungeon
+    /// </summary>
+    void TraverseDungeon()
+    {
+        var root = _tiles[_random.Next(_tiles.Count)].GetComponent<DungeonTile>();
+
+        root.DebugText = "R";
+
+        var visted = new HashSet<Vector2>();
+        Debug.Log("Starting recurse");
+        RecurseTiles(new List<DungeonTile>() { root }, visted);
+        Debug.Log("Finished recurse");
     }
 
 
@@ -176,27 +193,23 @@ public class DungeonManager : MonoBehaviour
         {
             RecurseTiles(children, visted);
         }
-        
     }
 
     /// <summary>
     /// Buggy seeds
     /// 39921746 | 30 - fixed
-    /// 923075182 | 100 - short path
+    /// 923075182 | 100 - fixed
     ///
+    /// todo
+    /// Not stable with over 250 itteration maps
+    /// ideas:
+    ///     store dungeon tiles instead of GO?
+    ///     searching for GO with location can't be fast, if I can find a way link the hash set with the GO would be faster
     ///
-    /// Potential issue - this is navigating a childs children before siblings.
-    /// I need to map all siblings before children.
-    ///
-    /// Current
-    ///     (0) - (0)
-    /// 0 < 
-    ///      0  -  0
-    ///
-    /// Ideal
-    ///     (0) -  0
-    /// 0 < 
-    ///     (0) -  0
+    /// Walks every child of provided tile
+    /// Sets a Dijkstra index for each child
+    /// Returns a list of children
+    /// 
     /// </summary>
     /// <param name="tile"></param>
     /// <param name="visted"></param>
@@ -212,9 +225,10 @@ public class DungeonManager : MonoBehaviour
                 var neighborLocation = DungeonTile.GetOffsetFromEdge(i) + tile.Location;
                 var neighborExists = _dungeon.Contains(neighborLocation);
 
-                if (neighborExists)//
+                if (neighborExists)
                 {
                     var matchingIndex = DungeonTile.GetMatchingEdgeIndex(i);
+                    // todo this is slow as balls
                     var neighbor = _tiles
                         .Where(t => t.GetComponent<DungeonTile>().Location == neighborLocation)
                         .FirstOrDefault()
@@ -223,8 +237,6 @@ public class DungeonManager : MonoBehaviour
                     if (neighbor.Edges[matchingIndex] == 1)
                     {
 
-                        // always update if current route is more efficent
-                        // or neighbor hasn't been set
                         if (neighbor.DijkstraIndex > tile.DijkstraIndex + 1 ||
                             (neighbor.DijkstraIndex == 0 && !visted.Contains(neighbor.Location)))
                         {
@@ -232,46 +244,22 @@ public class DungeonManager : MonoBehaviour
                             neighbor.DebugText = $"{neighbor.DijkstraIndex}";
                         }
 
-                        //if (neighbor.DijkstraIndex == 0 || tile.DijkstraIndex < neighbor.DijkstraIndex + 1) //tile.DijkstraIndex < neighbor.DijkstraIndex + 1
-                        //{
-                        //    neighbor.DijkstraIndex = tile.DijkstraIndex + 1;
-                        //}
-
                         // only add neighbor to list if it's not been visted
                         // this prevents stack over flows
                         if (!visted.Contains(neighbor.Location))
                         {
-                            //neighbor.DebugText = $"{neighbor.DijkstraIndex}";
                             neighbors.Add(neighbor);
                         }
 
-                        //neighbor.DebugText = $"{neighbor.DijkstraIndex}";
-                        //neighbors.Add(neighbor);
                     }
                 }
                 else
                 {
+                    // todo edge is 1 but no neighbor? Could fill here?
                     continue;
                 }
             }
         }
-        //foreach (var neighbor in neighbors)
-        //{
-        //    RecurseTile(neighbor, visted);
-        //}
         return neighbors;
     }
-
-    void TraverseDungeon()
-    {
-        var root = _tiles[_random.Next(_tiles.Count)].GetComponent<DungeonTile>();
-
-        root.DebugText = "R";
-        
-        var visted = new HashSet<Vector2>();
-        Debug.Log("Starting recurse");
-        RecurseTiles(new List<DungeonTile>() { root }, visted);
-        Debug.Log("Finished recurse");
-    }
-
 }
