@@ -11,6 +11,8 @@ public class DungeonTile : MonoBehaviour
     public Vector2 Location;
     public int DijkstraIndex;
 
+    public List<GameObject> Variants;
+
     /// <summary>
     /// Only used for debugging purposes
     /// Updates Gizmo in real time

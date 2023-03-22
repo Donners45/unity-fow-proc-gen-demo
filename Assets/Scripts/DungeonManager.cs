@@ -31,6 +31,7 @@ public class DungeonManager : MonoBehaviour
 {
     public int MaxItterations;
     public GameObject[] AllTiles;
+    public GameObject TerminatorTile;
     public int Seed;
 
     private List<GameObject> _tiles;
@@ -63,6 +64,7 @@ public class DungeonManager : MonoBehaviour
         _tiles = new List<GameObject>();
         _dungeon = new HashSet<Vector2>();
 
+        
         var baseTile = Instantiate(AllTiles[0], Vector2.zero, Quaternion.Euler(0, 0, 0));
 
         var tile = baseTile
@@ -255,7 +257,14 @@ public class DungeonManager : MonoBehaviour
                 }
                 else
                 {
-                    // todo edge is 1 but no neighbor? Could fill here?
+                    // todo tidy this up
+                    // creates a terminator block when no neighbor is found
+                    // 
+                    var go = Instantiate(TerminatorTile, neighborLocation * 30, Quaternion.Euler(0, 0, 0));
+                    var newTile = go.GetComponent<DungeonTile>();
+                    newTile.Location = neighborLocation;
+                    _tiles.Add(go);
+                    _dungeon.Add(neighborLocation);
                     continue;
                 }
             }

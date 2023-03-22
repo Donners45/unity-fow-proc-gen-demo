@@ -9218,6 +9218,10 @@ MonoBehaviour:
   Tags:
   - Corridoor
   Location: {x: 0, y: 0}
+  DijkstraIndex: 0
+  Variants:
+  - {fileID: 4247746990964402493, guid: 8d7f482e201eb4b869fb1360bd4b72ba, type: 3}
+  DebugText: 
 --- !u!1 &8424335509834040791
 GameObject:
   m_ObjectHideFlags: 0
