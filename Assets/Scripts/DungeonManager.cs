@@ -9,10 +9,11 @@ using static UnityEditor.FilePathAttribute;
 /// <summary>
 /// todo
 /// 
-///  - Djikastra mapping (DONE BUT NOT STABLE)
+///  - Djikastra mapping (Not stable)
 ///     - Pick an arbitary starting point
 ///     - Traverse every tile associating a value with distance from start
 ///     - High number indicates difficulty?
+///     - Lot's of rooms causes the current algo to blow up.
 ///
 ///  - Tidy up seed
 ///     - If a seed exahausts {MaxItterations} there will be empty walls
@@ -24,6 +25,7 @@ using static UnityEditor.FilePathAttribute;
 ///     - Rooms allow for interesting options when spawning content - enemies, events etc?
 ///     - Rooms allow for gated content
 ///     - A room with 1 enterence can be locked without making a dungeon impossible (providing you don't spawn in it)
+///     - Define a room?
 ///
 ///  - 
 /// </summary>
@@ -33,11 +35,12 @@ public class DungeonManager : MonoBehaviour
     public GameObject[] AllTiles;
     public GameObject TerminatorTile;
     public int Seed;
+    public  int TileSize = 30;
 
     private List<GameObject> _tiles;
     private HashSet<Vector2> _dungeon;
     private Vector2 _currentTile;
-
+    private int _maxDjikastraIndex = 0;
     private System.Random _random;
 
 
@@ -53,8 +56,8 @@ public class DungeonManager : MonoBehaviour
     {
         yield return HandleCreateLoop(() =>
         {
-            Debug.Log($"Created dungeon of {_dungeon.Count} tiles");
             TraverseDungeon();
+            Debug.Log($"Created dungeon of {_dungeon.Count} tiles, with {_maxDjikastraIndex} max DK index");
         });
     }
 
@@ -117,7 +120,7 @@ public class DungeonManager : MonoBehaviour
                         {
                             yield return new WaitForSeconds(0.05f);
 
-                            var go = Instantiate(tileToCreate, targetLocation * 30, Quaternion.Euler(0, 0, 0));
+                            var go = Instantiate(tileToCreate, targetLocation * TileSize, Quaternion.Euler(0, 0, 0));
                             var newTile = go.GetComponent<DungeonTile>();
 
                             newTile.Location = targetLocation;
@@ -149,7 +152,6 @@ public class DungeonManager : MonoBehaviour
                     {
                         // todo make boost logic a bit more rigid.
                         // this is doesn't seem efficient.
-                        candidates.Add(go);
                         candidates.Add(go);
                         candidates.Add(go);
                         candidates.Add(go);
@@ -244,6 +246,7 @@ public class DungeonManager : MonoBehaviour
                         {
                             neighbor.DijkstraIndex = tile.DijkstraIndex + 1;
                             neighbor.DebugText = $"{neighbor.DijkstraIndex}";
+                            _maxDjikastraIndex = Mathf.Max(_maxDjikastraIndex, neighbor.DijkstraIndex);
                         }
 
                         // only add neighbor to list if it's not been visted
@@ -259,12 +262,14 @@ public class DungeonManager : MonoBehaviour
                 {
                     // todo tidy this up
                     // creates a terminator block when no neighbor is found
-                    // 
-                    var go = Instantiate(TerminatorTile, neighborLocation * 30, Quaternion.Euler(0, 0, 0));
-                    var newTile = go.GetComponent<DungeonTile>();
-                    newTile.Location = neighborLocation;
-                    _tiles.Add(go);
-                    _dungeon.Add(neighborLocation);
+                    //
+                    // idea - terminators could be smarter to create a smaller wall where needed? 
+                    //
+                    //var go = Instantiate(TerminatorTile, neighborLocation * TileSize, Quaternion.Euler(0, 0, 0));
+                    //var newTile = go.GetComponent<DungeonTile>();
+                    //newTile.Location = neighborLocation;
+                    //_tiles.Add(go);
+                    //_dungeon.Add(neighborLocation);
                     continue;
                 }
             }
