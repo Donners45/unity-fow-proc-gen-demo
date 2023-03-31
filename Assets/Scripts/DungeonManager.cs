@@ -2,9 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using UnityEditor;
-using static UnityEditor.FilePathAttribute;
-
 
 /// <summary>
 /// todo
@@ -25,15 +22,17 @@ using static UnityEditor.FilePathAttribute;
 ///     - Rooms allow for interesting options when spawning content - enemies, events etc?
 ///     - Rooms allow for gated content
 ///     - A room with 1 enterence can be locked without making a dungeon impossible (providing you don't spawn in it)
-///     - Define a room?
 ///
+///     -- Good seed for testing rooms that can block each other 752157708 | 100
+///
+///     197732605 | 100 - long boi seed. 
 ///  - 
 /// </summary>
 public class DungeonManager : MonoBehaviour
 {
     public int MaxItterations;
     public GameObject[] AllTiles;
-    public GameObject TerminatorTile;
+    public GameObject[] TerminatorTiles;
     public int Seed;
     public  int TileSize = 30;
 
@@ -43,6 +42,7 @@ public class DungeonManager : MonoBehaviour
     private int _maxDjikastraIndex = 0;
     private System.Random _random;
 
+    private UniqueTree<DungeonTile> _dungeonTree;
 
     // Start is called before the first frame update
     void Start()
@@ -58,6 +58,14 @@ public class DungeonManager : MonoBehaviour
         {
             TraverseDungeon();
             Debug.Log($"Created dungeon of {_dungeon.Count} tiles, with {_maxDjikastraIndex} max DK index");
+
+            //var i = 0;
+            //foreach(var t in _dungeonTree.TraverseBottomUpBFS(_tiles[_random.Next(_tiles.Count)].GetComponent<DungeonTile>(), 10))
+            //{
+                
+            //    t.DebugText = $"t {++i}";
+            //}
+
         });
     }
 
@@ -115,7 +123,7 @@ public class DungeonManager : MonoBehaviour
 
                     if (!_dungeon.Contains(targetLocation))
                     {
-                        var tileToCreate = GetTile(e, tile.Tags);
+                        var tileToCreate = GetTile(e, tile.Tags, AllTiles);
                         if (tileToCreate != null)
                         {
                             yield return new WaitForSeconds(0.05f);
@@ -134,39 +142,39 @@ public class DungeonManager : MonoBehaviour
             
         }
 
-        callback();
+        callback();    
+    }
 
-        GameObject GetTile(int edgeIndex, string[] tileAttributes)
+    GameObject GetTile(int edgeIndex, string[] tileAttributes, GameObject[] tileSet)
+    {
+
+        var matchingIndex = DungeonTile.GetMatchingEdgeIndex(edgeIndex);
+        var candidates = new List<GameObject>();
+
+        foreach (var go in tileSet)
         {
+            var tile = go.GetComponent<DungeonTile>();
 
-            var matchingIndex = DungeonTile.GetMatchingEdgeIndex(edgeIndex);
-            var candidates = new List<GameObject>();
-
-            foreach (var go in AllTiles)
+            if (tile.Edges[matchingIndex] == 1)
             {
-                var tile = go.GetComponent<DungeonTile>();
-
-                if (tile.Edges[matchingIndex] == 1)
+                if (tile.Tags.Where(f => tileAttributes.Contains(f)).Any())
                 {
-                    if (tile.Tags.Where(f => tileAttributes.Contains(f)).Any())
-                    {
-                        // todo make boost logic a bit more rigid.
-                        // this is doesn't seem efficient.
-                        candidates.Add(go);
-                        candidates.Add(go);
-                        candidates.Add(go);
-                    }
+                    // todo make boost logic a bit more rigid.
+                    // this is doesn't seem efficient.
+                    candidates.Add(go);
+                    candidates.Add(go);
                     candidates.Add(go);
                 }
+                candidates.Add(go);
             }
+        }
 
-            if (candidates.Count > 0)
-            {
-                return candidates[_random.Next(candidates.Count)];
-            }
+        if (candidates.Count > 0)
+        {
+            return candidates[_random.Next(candidates.Count)];
+        }
 
-            return null;
-        }     
+        return null;
     }
 
     /// <summary>
@@ -178,6 +186,9 @@ public class DungeonManager : MonoBehaviour
         var root = _tiles[_random.Next(_tiles.Count)].GetComponent<DungeonTile>();
 
         root.DebugText = "R";
+
+        _dungeonTree = new UniqueTree<DungeonTile>();
+        _dungeonTree.Add(root);
 
         var visted = new HashSet<Vector2>();
         Debug.Log("Starting recurse");
@@ -192,6 +203,9 @@ public class DungeonManager : MonoBehaviour
         foreach(var tile in tiles)
         {
             children.AddRange(RecurseTile(tile, visted));
+            // attempt at adding navigatable tiles to a tree
+            // this would allow traversal from any given point
+            _dungeonTree.Add(children, tile);
         }
         if (children.Any())
         {
@@ -265,11 +279,23 @@ public class DungeonManager : MonoBehaviour
                     //
                     // idea - terminators could be smarter to create a smaller wall where needed? 
                     //
-                    //var go = Instantiate(TerminatorTile, neighborLocation * TileSize, Quaternion.Euler(0, 0, 0));
-                    //var newTile = go.GetComponent<DungeonTile>();
-                    //newTile.Location = neighborLocation;
-                    //_tiles.Add(go);
-                    //_dungeon.Add(neighborLocation);
+                    // idea - terminators could be used as teleports (doors) to prefabbed rooms
+                    //          gets around the polyfilling problems!
+
+                    var terminatorToUse = GetTile(i, null, TerminatorTiles);
+
+                    if (terminatorToUse == null)
+                    {
+                        terminatorToUse = TerminatorTiles[0];
+                    }
+
+                    var go = Instantiate(terminatorToUse, neighborLocation * TileSize, Quaternion.Euler(0, 0, 0));
+                    var newTile = go.GetComponent<DungeonTile>();
+                    newTile.Location = neighborLocation;
+                    _tiles.Add(go);
+                    _dungeon.Add(neighborLocation);
+
+
                     continue;
                 }
             }
