@@ -30,7 +30,7 @@ using System.Linq;
 /// </summary>
 public class DungeonManager : MonoBehaviour
 {
-    public int MaxItterations;
+    public int MaxIterations;
     public GameObject[] AllTiles;
     public GameObject[] TerminatorTiles;
     public int Seed;
@@ -75,17 +75,18 @@ public class DungeonManager : MonoBehaviour
         _tiles = new List<GameObject>();
         _dungeon = new HashSet<Vector2>();
 
-        
-        var baseTile = Instantiate(AllTiles[0], Vector2.zero, Quaternion.Euler(0, 0, 0));
+        CreateTile(AllTiles[0], Vector2.zero);
 
-        var tile = baseTile
-            .GetComponent<DungeonTile>();
+        //var baseTile = Instantiate(AllTiles[0], Vector2.zero, Quaternion.Euler(0, 0, 0));
 
-        tile.Location = Vector2.zero;
+        //var tile = baseTile
+        //    .GetComponent<DungeonTile>();
 
-        _tiles.Add(baseTile);
+        //tile.Location = Vector2.zero;
 
-        _dungeon.Add(Vector2.zero);
+        //_tiles.Add(baseTile);
+
+        //_dungeon.Add(Vector2.zero);
         _currentTile = Vector2.zero;
 
         void initSeed()
@@ -107,9 +108,14 @@ public class DungeonManager : MonoBehaviour
     IEnumerator HandleCreateLoop(System.Action callback)
     {
         var iteration = 0;
-        while (iteration < MaxItterations + 1)
+
+        // todo this is a bit hacky
+        // need to run the tile loop once more after max iterations
+        // to create the final terminators, this isn't inefficient but it's difficult to read..
+        while (iteration < MaxIterations + 1)
         {
-            
+            // for each tile
+            // this array grows as it loops, can't foreach it. 
             for (int i = 0; i < _tiles.Count; i++)
             {
                 if (_tiles.Count - 1 < i)
@@ -118,43 +124,30 @@ public class DungeonManager : MonoBehaviour
                 var tile = _tiles[i].GetComponent<DungeonTile>();
                 _currentTile = tile.Location;
 
+                // for each edge in current tile
                 for (var e = 0; e <= tile.Edges.Length - 1; e++)
                 {
                     if (tile.Edges[e] == 1)
                     {
-                        var offset = DungeonTile.GetOffsetFromEdge(e);
-                        var targetLocation = offset + _currentTile;
+                        var targetLocation =
+                            DungeonTile.GetOffsetFromEdge(e) + _currentTile;
 
                         if (!_dungeon.Contains(targetLocation))
                         {
-                            var tileSet = AllTiles;
-                            if (iteration >= MaxItterations)
-                                tileSet = TerminatorTiles;
+                            var tileSet = iteration < MaxIterations
+                                ? AllTiles : TerminatorTiles;
 
-                            var tileToCreate = GetTile(e, tile.Tags, tileSet);
-
-                            if (tileToCreate == null)
-                            {
-                                tileToCreate = TerminatorTiles[0];
-                            }
+                            var tileToCreate = GetTile(e, tile.Tags, tileSet)
+                                ?? TerminatorTiles[0];
 
                             yield return new WaitForSeconds(0.05f);
 
-                            var newGo = Instantiate(tileToCreate, targetLocation * TileSize, Quaternion.Euler(0, 0, 0));
-                            var newTile = newGo.GetComponent<DungeonTile>();
-
-                            newTile.Location = targetLocation;
-
-                            _tiles.Add(newGo);
-                            _dungeon.Add(targetLocation);
-
+                            CreateTile(tileToCreate, targetLocation);
                         }
                     }
                 }
                 iteration++;
-            }
-
-            
+            }            
         }
 
         callback();    
@@ -184,12 +177,9 @@ public class DungeonManager : MonoBehaviour
             }
         }
 
-        if (candidates.Count > 0)
-        {
-            return candidates[_random.Next(candidates.Count)];
-        }
-
-        return null;
+        return candidates.Count > 0 ?
+            candidates[_random.Next(candidates.Count)] :
+            null;
     }
 
     /// <summary>
@@ -234,10 +224,6 @@ public class DungeonManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Buggy seeds
-    /// 39921746 | 30 - fixed
-    /// 923075182 | 100 - fixed
-    ///
     /// todo
     /// Not stable with over 250 itteration maps
     /// ideas:
@@ -321,5 +307,21 @@ public class DungeonManager : MonoBehaviour
             }
         }
         return neighbors;
+    }
+
+    /// <summary>
+    /// Creates a tile at the specified location
+    /// Does not check placement validity
+    /// </summary>
+    /// <param name="tile"></param>
+    /// <param name="location"></param>
+    void CreateTile(GameObject tile, Vector2 location)
+    {
+        var newGo = Instantiate(tile, location * TileSize, Quaternion.Euler(0, 0, 0));
+        newGo.GetComponent<DungeonTile>()
+            .Location = location;
+
+        _tiles.Add(newGo);
+        _dungeon.Add(location);
     }
 }
