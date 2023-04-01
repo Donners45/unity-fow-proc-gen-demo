@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using System.Linq;
 
 public class DungeonTile : MonoBehaviour
 {
@@ -62,6 +63,11 @@ public class DungeonTile : MonoBehaviour
         if (matchingEdgeIndex > 11)
             matchingEdgeIndex -= 12;
         return matchingEdgeIndex;
+    }
+
+    public static bool TileIsPathable(DungeonTile tile)
+    {
+        return tile.Edges.Any(e => e == 1);
     }
 }
 

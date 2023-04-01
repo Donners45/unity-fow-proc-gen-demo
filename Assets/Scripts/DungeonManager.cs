@@ -106,39 +106,54 @@ public class DungeonManager : MonoBehaviour
 
     IEnumerator HandleCreateLoop(System.Action callback)
     {
-        for (var i = 0; i < MaxItterations; i++)
+        var iteration = 0;
+        while (iteration < MaxItterations + 1)
         {
-            if (_tiles.Count - 1 < i)
-                break;
-
-            var tile = _tiles[i].GetComponent<DungeonTile>();
-            _currentTile = tile.Location;
-
-            for (var e = 0; e <= tile.Edges.Length - 1; e++)
+            
+            for (int i = 0; i < _tiles.Count; i++)
             {
-                if (tile.Edges[e] == 1)
-                {
-                    var offset = DungeonTile.GetOffsetFromEdge(e);
-                    var targetLocation = offset + _currentTile;
+                if (_tiles.Count - 1 < i)
+                    break;
 
-                    if (!_dungeon.Contains(targetLocation))
+                var tile = _tiles[i].GetComponent<DungeonTile>();
+                _currentTile = tile.Location;
+
+                for (var e = 0; e <= tile.Edges.Length - 1; e++)
+                {
+                    if (tile.Edges[e] == 1)
                     {
-                        var tileToCreate = GetTile(e, tile.Tags, AllTiles);
-                        if (tileToCreate != null)
+                        var offset = DungeonTile.GetOffsetFromEdge(e);
+                        var targetLocation = offset + _currentTile;
+
+                        if (!_dungeon.Contains(targetLocation))
                         {
+                            var tileSet = AllTiles;
+                            if (iteration >= MaxItterations)
+                                tileSet = TerminatorTiles;
+
+                            var tileToCreate = GetTile(e, tile.Tags, tileSet);
+
+                            if (tileToCreate == null)
+                            {
+                                tileToCreate = TerminatorTiles[0];
+                            }
+
                             yield return new WaitForSeconds(0.05f);
 
-                            var go = Instantiate(tileToCreate, targetLocation * TileSize, Quaternion.Euler(0, 0, 0));
-                            var newTile = go.GetComponent<DungeonTile>();
+                            var newGo = Instantiate(tileToCreate, targetLocation * TileSize, Quaternion.Euler(0, 0, 0));
+                            var newTile = newGo.GetComponent<DungeonTile>();
 
                             newTile.Location = targetLocation;
 
-                            _tiles.Add(go);
+                            _tiles.Add(newGo);
                             _dungeon.Add(targetLocation);
+
                         }
                     }
                 }
+                iteration++;
             }
+
             
         }
 
@@ -185,8 +200,13 @@ public class DungeonManager : MonoBehaviour
     {
         var root = _tiles[_random.Next(_tiles.Count)].GetComponent<DungeonTile>();
 
-        root.DebugText = "R";
+        if (!DungeonTile.TileIsPathable(root))
+        {
+            TraverseDungeon();
+            return;
+        }
 
+        root.DebugText = "R";
         _dungeonTree = new UniqueTree<DungeonTile>();
         _dungeonTree.Add(root);
 
@@ -282,18 +302,18 @@ public class DungeonManager : MonoBehaviour
                     // idea - terminators could be used as teleports (doors) to prefabbed rooms
                     //          gets around the polyfilling problems!
 
-                    var terminatorToUse = GetTile(i, null, TerminatorTiles);
+                    //var terminatorToUse = GetTile(i, null, TerminatorTiles);
 
-                    if (terminatorToUse == null)
-                    {
-                        terminatorToUse = TerminatorTiles[0];
-                    }
+                    //if (terminatorToUse == null)
+                    //{
+                    //    terminatorToUse = TerminatorTiles[0];
+                    //}
 
-                    var go = Instantiate(terminatorToUse, neighborLocation * TileSize, Quaternion.Euler(0, 0, 0));
-                    var newTile = go.GetComponent<DungeonTile>();
-                    newTile.Location = neighborLocation;
-                    _tiles.Add(go);
-                    _dungeon.Add(neighborLocation);
+                    //var go = Instantiate(terminatorToUse, neighborLocation * TileSize, Quaternion.Euler(0, 0, 0));
+                    //var newTile = go.GetComponent<DungeonTile>();
+                    //newTile.Location = neighborLocation;
+                    //_tiles.Add(go);
+                    //_dungeon.Add(neighborLocation);
 
 
                     continue;
