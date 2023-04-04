@@ -12,16 +12,31 @@ public class DungeonTile : MonoBehaviour
     public Vector2 Location;
     public int DijkstraIndex;
 
-    public List<GameObject> Variants;
+    public List<GameObject> Props;
 
-    /// <summary>
-    /// Only used for debugging purposes
-    /// Updates Gizmo in real time
-    /// </summary>
     public string DebugText;
     void OnDrawGizmos()
     {
         Handles.Label(transform.position, DebugText);
+    }
+
+    void Start()
+    {
+        foreach (var go in Props ?? Enumerable.Empty<GameObject>())
+        {
+            go.SetActive(Random.Range(0.0f, 1.0f) > 0.80);
+        }
+
+        // disable portals
+        transform.Find("Portals")?
+            .gameObject.SetActive(false);
+    }
+
+    public void SetSpawn()
+    {
+        this.DijkstraIndex = 0;
+        transform.Find("Portals")?
+            .gameObject.SetActive(true);
     }
 
     public static Orientation GetOrientationFromEdge(int edgeIndex)

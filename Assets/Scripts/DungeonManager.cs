@@ -42,8 +42,6 @@ public class DungeonManager : MonoBehaviour
     private int _maxDjikastraIndex = 0;
     private System.Random _random;
 
-    private UniqueTree<DungeonTile> _dungeonTree;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -58,13 +56,6 @@ public class DungeonManager : MonoBehaviour
         {
             TraverseDungeon();
             Debug.Log($"Created dungeon of {_dungeon.Count} tiles, with {_maxDjikastraIndex} max DK index");
-
-            //var i = 0;
-            //foreach(var t in _dungeonTree.TraverseBottomUpBFS(_tiles[_random.Next(_tiles.Count)].GetComponent<DungeonTile>(), 10))
-            //{
-                
-            //    t.DebugText = $"t {++i}";
-            //}
 
         });
     }
@@ -183,8 +174,7 @@ public class DungeonManager : MonoBehaviour
             return;
         }
 
-        root.DebugText = "R";
-
+        root.SetSpawn();
         var visted = new HashSet<Vector2>();
         Debug.Log("Starting recurse");
         RecurseTiles(new List<DungeonTile>() { root }, visted);
@@ -198,9 +188,6 @@ public class DungeonManager : MonoBehaviour
         foreach(var tile in tiles)
         {
             children.AddRange(RecurseTile(tile, visted));
-            // attempt at adding navigatable tiles to a tree
-            // this would allow traversal from any given point
-            //_dungeonTree.Add(children, tile);
         }
         if (children.Any())
         {
@@ -265,28 +252,6 @@ public class DungeonManager : MonoBehaviour
                 }
                 else
                 {
-                    // todo tidy this up
-                    // creates a terminator block when no neighbor is found
-                    //
-                    // idea - terminators could be smarter to create a smaller wall where needed? 
-                    //
-                    // idea - terminators could be used as teleports (doors) to prefabbed rooms
-                    //          gets around the polyfilling problems!
-
-                    //var terminatorToUse = GetTile(i, null, TerminatorTiles);
-
-                    //if (terminatorToUse == null)
-                    //{
-                    //    terminatorToUse = TerminatorTiles[0];
-                    //}
-
-                    //var go = Instantiate(terminatorToUse, neighborLocation * TileSize, Quaternion.Euler(0, 0, 0));
-                    //var newTile = go.GetComponent<DungeonTile>();
-                    //newTile.Location = neighborLocation;
-                    //_tiles.Add(go);
-                    //_dungeon.Add(neighborLocation);
-
-
                     continue;
                 }
             }
