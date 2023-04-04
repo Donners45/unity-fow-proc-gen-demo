@@ -77,29 +77,16 @@ public class DungeonManager : MonoBehaviour
 
         CreateTile(AllTiles[0], Vector2.zero);
 
-        //var baseTile = Instantiate(AllTiles[0], Vector2.zero, Quaternion.Euler(0, 0, 0));
-
-        //var tile = baseTile
-        //    .GetComponent<DungeonTile>();
-
-        //tile.Location = Vector2.zero;
-
-        //_tiles.Add(baseTile);
-
-        //_dungeon.Add(Vector2.zero);
         _currentTile = Vector2.zero;
 
         void initSeed()
         {
             int seed;
-            if (Seed != 0)
-            {
-                seed = Seed;
-            }
-            else
-            {
-                seed = Random.Range(int.MinValue, int.MaxValue);
-            }
+
+           seed = Seed != 0 ?
+                Seed :
+                Random.Range(int.MinValue, int.MaxValue);
+
             _random = new System.Random(seed);
             Debug.Log($"Creating dungeon with seed: {seed}");
         }
@@ -197,8 +184,6 @@ public class DungeonManager : MonoBehaviour
         }
 
         root.DebugText = "R";
-        _dungeonTree = new UniqueTree<DungeonTile>();
-        _dungeonTree.Add(root);
 
         var visted = new HashSet<Vector2>();
         Debug.Log("Starting recurse");
@@ -215,7 +200,7 @@ public class DungeonManager : MonoBehaviour
             children.AddRange(RecurseTile(tile, visted));
             // attempt at adding navigatable tiles to a tree
             // this would allow traversal from any given point
-            _dungeonTree.Add(children, tile);
+            //_dungeonTree.Add(children, tile);
         }
         if (children.Any())
         {
@@ -225,7 +210,7 @@ public class DungeonManager : MonoBehaviour
 
     /// <summary>
     /// todo
-    /// Not stable with over 250 itteration maps
+    /// Not stable with over 250 iteration maps
     /// ideas:
     ///     store dungeon tiles instead of GO?
     ///     searching for GO with location can't be fast, if I can find a way link the hash set with the GO would be faster

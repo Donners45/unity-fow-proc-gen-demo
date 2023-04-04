@@ -269,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e401e130735694a6495e731d79b0fbe8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxItterations: 100
+  MaxIterations: 75
   AllTiles:
   - {fileID: 851197791010894651, guid: ababfde1bbbd24378acbce6fa8a40c9f, type: 3}
   - {fileID: 1619133947556759030, guid: 513f68e5f6b244868866eb491f04ff4d, type: 3}
@@ -281,6 +281,7 @@ MonoBehaviour:
   TerminatorTiles:
   - {fileID: 3456278119033772414, guid: 23fee739a22c8474489f65dda3347f54, type: 3}
   - {fileID: 1903990482900974513, guid: 43aca1a2754ba490291fe020f0f71a51, type: 3}
+  - {fileID: 7501734509339933225, guid: bc0b1eeb8d94941cfaf0429197d82792, type: 3}
   Seed: 0
   TileSize: 9
 --- !u!4 &751481427
