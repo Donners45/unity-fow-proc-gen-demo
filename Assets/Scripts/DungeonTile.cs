@@ -22,10 +22,7 @@ public class DungeonTile : MonoBehaviour
 
     void Start()
     {
-        foreach (var go in Props ?? Enumerable.Empty<GameObject>())
-        {
-            go.SetActive(Random.Range(0.0f, 1.0f) > 0.80);
-        }
+        PopulateProps();
 
         // disable portals
         transform.Find("Portals")?
@@ -38,6 +35,7 @@ public class DungeonTile : MonoBehaviour
         transform.Find("Portals")?
             .gameObject.SetActive(true);
     }
+
 
     public static Orientation GetOrientationFromEdge(int edgeIndex)
     {
@@ -83,6 +81,15 @@ public class DungeonTile : MonoBehaviour
     public static bool TileIsPathable(DungeonTile tile)
     {
         return tile.Edges.Any(e => e == 1);
+    }
+
+    // todo make this more dynamic? currently just 80% chance to show any prop
+    private void PopulateProps()
+    {
+        foreach (var go in Props ?? Enumerable.Empty<GameObject>())
+        {
+            go.SetActive(Random.Range(0.0f, 1.0f) > 0.80);
+        }
     }
 }
 

@@ -269,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e401e130735694a6495e731d79b0fbe8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxIterations: 150
+  MaxIterations: 50
   AllTiles:
   - {fileID: 851197791010894651, guid: ababfde1bbbd24378acbce6fa8a40c9f, type: 3}
   - {fileID: 1619133947556759030, guid: 513f68e5f6b244868866eb491f04ff4d, type: 3}

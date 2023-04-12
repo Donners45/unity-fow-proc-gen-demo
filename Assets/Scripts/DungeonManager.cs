@@ -6,27 +6,24 @@ using System.Linq;
 /// <summary>
 /// todo
 /// 
-///  - Djikastra mapping (Not stable)
+///  - Djikastra mapping
 ///     - Pick an arbitary starting point
 ///     - Traverse every tile associating a value with distance from start
 ///     - High number indicates difficulty?
-///     - Lot's of rooms causes the current algo to blow up.
-///
-///  - Tidy up seed
-///     - If a seed exahausts {MaxItterations} there will be empty walls
-///     - Fill with a terminator or create a room until terminated
-///     - Can do this as part of Dijkstra mapping, I'm already traversing every tile.
 ///
 ///  - Room parsing
-///     - Distinguish tiles that create a room
-///     - Rooms allow for interesting options when spawning content - enemies, events etc?
-///     - Rooms allow for gated content
-///     - A room with 1 enterence can be locked without making a dungeon impossible (providing you don't spawn in it)
+///     - Easier to create bespoke rooms as prefabs
+///     - RNG chance for a terminator tile to have a gated portal to prefab
+///     - Could spend resources to open prefabbed portal
 ///
-///     -- Good seed for testing rooms that can block each other 752157708 | 100
+///  - Portals
+///     - Spawns and targets need creating
+///     - 
 ///
-///     197732605 | 100 - long boi seed. 
-///  - 
+///  - Minimum Requirements
+///     - If a seed doesn't yeild XYZ then re-roll?
+///
+/// 
 /// </summary>
 public class DungeonManager : MonoBehaviour
 {
@@ -197,7 +194,6 @@ public class DungeonManager : MonoBehaviour
 
     /// <summary>
     /// todo
-    /// Not stable with over 250 iteration maps
     /// ideas:
     ///     store dungeon tiles instead of GO?
     ///     searching for GO with location can't be fast, if I can find a way link the hash set with the GO would be faster
@@ -224,7 +220,8 @@ public class DungeonManager : MonoBehaviour
                 if (neighborExists)
                 {
                     var matchingIndex = DungeonTile.GetMatchingEdgeIndex(i);
-                    // todo this is slow as balls
+
+                    // todo this probably isn't very efficient
                     var neighbor = _tiles
                         .Where(t => t.GetComponent<DungeonTile>().Location == neighborLocation)
                         .FirstOrDefault()
