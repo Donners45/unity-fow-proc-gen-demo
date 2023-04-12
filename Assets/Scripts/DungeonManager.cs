@@ -7,9 +7,7 @@ using System.Linq;
 /// todo
 /// 
 ///  - Djikastra mapping
-///     - Pick an arbitary starting point
-///     - Traverse every tile associating a value with distance from start
-///     - High number indicates difficulty?
+///     - Being able to recalculate based on a selected tile could be useful? 
 ///
 ///  - Room parsing
 ///     - Easier to create bespoke rooms as prefabs
@@ -43,19 +41,12 @@ public class DungeonManager : MonoBehaviour
     void Start()
     {
         SeedDungeon();
-
-        StartCoroutine(DoSeed());
+        HandleCreateLoop();
+        TraverseDungeon();
+        ValidateDungeon();
+        Debug.Log($"Created dungeon of {_dungeon.Count} tiles, with {_maxDjikastraIndex} max DK index");
     }
 
-    IEnumerator DoSeed()
-    {
-        yield return HandleCreateLoop(() =>
-        {
-            TraverseDungeon();
-            Debug.Log($"Created dungeon of {_dungeon.Count} tiles, with {_maxDjikastraIndex} max DK index");
-
-        });
-    }
 
     void SeedDungeon()
     {
@@ -80,7 +71,7 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
-    IEnumerator HandleCreateLoop(System.Action callback)
+    void HandleCreateLoop()
     {
         var iteration = 0;
 
@@ -100,6 +91,7 @@ public class DungeonManager : MonoBehaviour
                 _currentTile = tile.Location;
 
                 // for each edge in current tile
+                var createdChild = false;
                 for (var e = 0; e <= tile.Edges.Length - 1; e++)
                 {
                     if (tile.Edges[e] == 1)
@@ -115,17 +107,15 @@ public class DungeonManager : MonoBehaviour
                             var tileToCreate = GetTile(e, tile.Tags, tileSet)
                                 ?? TerminatorTiles[0];
 
-                            yield return new WaitForSeconds(0.05f);
-
                             CreateTile(tileToCreate, targetLocation);
+                            createdChild = true;
                         }
                     }
                 }
+                if (createdChild == false) tile.IsTerminator = true;
                 iteration++;
             }            
         }
-
-        callback();    
     }
 
     GameObject GetTile(int edgeIndex, string[] tileAttributes, GameObject[] tileSet)
@@ -270,5 +260,10 @@ public class DungeonManager : MonoBehaviour
 
         _tiles.Add(newGo);
         _dungeon.Add(location);
+    }
+
+    void ValidateDungeon()
+    {
+
     }
 }

@@ -7,33 +7,57 @@ using System.Linq;
 public class DungeonTile : MonoBehaviour
 {
 
+    /// <summary>
+    /// This tiles connections, all times should have an array of 12 edges
+    /// 1 indicates a connection
+    /// 0 indicates a wall or blocker
+    /// </summary>
     public int[] Edges;
+
+    /// <summary>
+    /// Meta data used during dungeon creation
+    /// Example: Tiles with similar tags may be more or less likely to spawn next to each other
+    /// </summary>
     public string[] Tags;
+
+    /// <summary>
+    ///  This tile's relative location within the dungeon
+    /// </summary>
     public Vector2 Location;
+
+    /// <summary>
+    /// Number determines the amount of tiles between this
+    /// and the Dijkstra seed (tile with DijkastraIndex == 0)
+    /// </summary>
     public int DijkstraIndex;
 
-    public List<GameObject> Props;
+    /// <summary>
+    /// Flag determines if the tile has no children
+    /// </summary>
+    public bool IsTerminator;
 
+    public List<GameObject> Props;
+    public List<Portal> Portals;
     public string DebugText;
+
     void OnDrawGizmos()
     {
         Handles.Label(transform.position, DebugText);
     }
 
-    void Start()
+    void Awake()
     {
         PopulateProps();
-
-        // disable portals
-        transform.Find("Portals")?
-            .gameObject.SetActive(false);
+        DisablePortals();
     }
 
     public void SetSpawn()
     {
         this.DijkstraIndex = 0;
-        transform.Find("Portals")?
-            .gameObject.SetActive(true);
+
+        Portals
+            .FirstOrDefault(f => f.Type == PortalType.Spawn)
+            ?.gameObject.SetActive(true);
     }
 
 
@@ -90,6 +114,12 @@ public class DungeonTile : MonoBehaviour
         {
             go.SetActive(Random.Range(0.0f, 1.0f) > 0.80);
         }
+    }
+
+    private void DisablePortals()
+    {
+        // disable portals
+        Portals.ForEach(f => f.gameObject.SetActive(false));
     }
 }
 

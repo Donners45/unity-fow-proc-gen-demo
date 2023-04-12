@@ -56,6 +56,8 @@ MonoBehaviour:
   Props:
   - {fileID: 1644932572315186437}
   - {fileID: 1441529333024526290}
+  Portals:
+  - {fileID: 1763810234938970971}
   DebugText: 
 --- !u!95 &7012778137889967985
 Animator:
@@ -1456,6 +1458,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7800243260262713726}
+  - component: {fileID: 1763810234938970971}
   m_Layer: 0
   m_Name: Spawn
   m_TagString: Spawn
@@ -1477,6 +1480,19 @@ Transform:
   m_Father: {fileID: 2689652394139555418}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1763810234938970971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3803660368474966677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ab9a5e07147f495ea4f94f1cfb86141, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 0
 --- !u!1001 &2156387223433661368
 PrefabInstance:
   m_ObjectHideFlags: 0
