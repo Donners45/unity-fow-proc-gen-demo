@@ -47,8 +47,8 @@ public class DungeonTile : MonoBehaviour
 
     void Awake()
     {
-        PopulateProps();
         DisablePortals();
+        PopulateProps();
     }
 
     public void SetSpawn()
@@ -60,6 +60,12 @@ public class DungeonTile : MonoBehaviour
             ?.gameObject.SetActive(true);
     }
 
+    public void SetExit()
+    {
+        Portals
+            .FirstOrDefault(f => f.Type == PortalType.Exit)
+            ?.gameObject.SetActive(true);
+    }
 
     public static Orientation GetOrientationFromEdge(int edgeIndex)
     {

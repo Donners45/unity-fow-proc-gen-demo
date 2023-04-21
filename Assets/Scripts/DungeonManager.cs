@@ -33,6 +33,10 @@ public class DungeonManager : MonoBehaviour
 
     private List<GameObject> _tiles;
     private HashSet<Vector2> _dungeon;
+
+    private DungeonTile SpawnReference;
+    private List<DungeonTile> TerminatorReferences;
+
     private Vector2 _currentTile;
     private int _maxDjikastraIndex = 0;
     private System.Random _random;
@@ -40,13 +44,30 @@ public class DungeonManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SeedDungeon();
-        HandleCreateLoop();
-        TraverseDungeon();
-        ValidateDungeon();
+        CreateDungeon();
+
+        if (!ValidateDungeon())
+        {
+            // todo recurse or loop until this is happy?
+            //CreateDungeon();
+
+        }
+
         Debug.Log($"Created dungeon of {_dungeon.Count} tiles, with {_maxDjikastraIndex} max DK index");
     }
 
+    /// <summary>
+    /// Seeds a new dungeon
+    /// Creates tiles
+    /// Traverses tiles to populate run time data
+    /// </summary>
+    void CreateDungeon()
+    {
+        SeedDungeon();
+        HandleCreateLoop();
+        TraverseDungeon();
+        SetPortals();
+    }
 
     void SeedDungeon()
     {
@@ -262,8 +283,61 @@ public class DungeonManager : MonoBehaviour
         _dungeon.Add(location);
     }
 
-    void ValidateDungeon()
+    void SetPortals()
     {
+        var tiles = _tiles.Select(t => t.GetComponent<DungeonTile>());
 
+        tiles = tiles
+            .Where(t => t.IsTerminator)
+            .OrderBy(t => t.DijkstraIndex);
+
+        foreach (var tile in tiles)
+        {
+            if (tile.IsTerminator)
+            {
+                tile.SetExit();
+            }
+        }
+    }
+
+    /// <summary>
+    /// todo make validate more dynamic
+    ///     - magic ints at the moment, this should probably be more dynamic based on a difficulty scale
+    /// </summary>
+    /// <returns></returns>
+    bool ValidateDungeon()
+    {
+        var tiles = _tiles.Select(t => t.GetComponent<DungeonTile>());
+
+        var terminatorCount = tiles.Count(t => t.IsTerminator);
+        if (terminatorCount < 5)
+        {
+            Debug.Log($"Not enough terminators {terminatorCount} is less than 5");
+            return false;
+        }
+
+        var tileCount = tiles.Count();
+        if (tileCount < 20)
+        {
+            Debug.Log($"Not enough tiles {tileCount} is less than 20");
+            return false;
+        }
+
+        // todo not working
+        // still seeing all portals as active?
+        // possibly a delay timing issue or a reference/value issue with the list
+        // portals appear to work as expected in the editor
+        var spawnCount = tiles
+            .Select(t => t.Portals.Count(p => p.Type == PortalType.Spawn && p.gameObject.activeSelf))
+            .Count();
+
+        if (spawnCount != 1)
+        {
+            Debug.Log($"spawn portals active {spawnCount} {terminatorCount}");
+            // return false once big above is fixed
+            return true;
+        }
+
+        return true;
     }
 }

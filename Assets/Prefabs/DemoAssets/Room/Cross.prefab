@@ -49,6 +49,7 @@ MonoBehaviour:
   Tags: []
   Location: {x: 0, y: 0}
   DijkstraIndex: 0
+  IsTerminator: 0
   Props: []
   Portals:
   - {fileID: 4283786819913140869}
@@ -1300,7 +1301,7 @@ GameObject:
   m_Icon: {fileID: -5487077368411116049, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5976934987474892648
 Transform:
   m_ObjectHideFlags: 0
